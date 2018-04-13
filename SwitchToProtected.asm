@@ -1,3 +1,12 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;																			;
+;Brihi Joshi - 2016142														;
+;Taejas Gupta - 2016204														;		
+;																			;																		;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 mov eax, cr4                 ; Set the A-register to control register 4.
 or eax, 1 << 5               ; Set the PAE-bit, which is the 6th bit (bit 5).
 mov cr4, eax                 ; Set control register 4 to the A-register.
