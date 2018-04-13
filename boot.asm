@@ -14,7 +14,7 @@ boot:
 	mov eax, cr0				; Moves the CR0 register to EAX(32 Bit)
 	or eax,0x1					; Make the first bit of EAX as 1 (The first bit represents the Protected Mode Bit)
 	mov cr0, eax				; Write the changes of EAX back to CR0
-	jmp CODE_SEG:boot32         ; Long jump to the code segment
+	jmp CODE_SEG:boot32         ; Long jump to the code segment of 32 Bits
 
 
 %include "32BitGDTTable.asm"	; Include the file which contains the 32 Bit GDT Table
@@ -24,40 +24,43 @@ DATA_SEG equ .Data - .Start     ; Address of the data segment is address of data
 
 bits 32							; Now we have entered the 32 bit protected mode
 boot32:
-	%include "32BitDataSeg.asm"
+	%include "32BitDataSeg.asm"	; Setting the Data Segment Registers in the 32 Bit environment
 	
 
-%include "EnablePaging.asm"
+%include "EnablePaging.asm"		; Prepare to enter the 64 bit mode by enabling paging
 
 .SetEntry:
-	mov DWORD [edi], ebx         ; Set the uint32_t at the destination index to the B-register.
-	add ebx, 0x1000              ; Add 0x1000 to the B-register.
-	add edi, 8                   ; Add eight to the destination index.
-	loop .SetEntry               ; Set the next entry.
+	mov DWORD [edi], ebx        ; Set the uint32_t at the destination index to the B-register.
+	add ebx, 0x1000             ; Add 0x1000 to the B-register.
+	add edi, 8                  ; Add eight to the destination index.
+	loop .SetEntry              ; Set the next entry.
 
 	%include "SwitchToProtected.asm"
 
-	lgdt [GDT64.Pointer]         ; Load the 64-bit global descriptor table.
-	jmp GDT64.Code:boot64        ; Set the code segment and enter 64-bit long mode.
+	lgdt [GDT64.Pointer]        ; Load pointer to the GDT Table. Here, initial pointer is to the 64 Bit GDT Table
+	jmp GDT64.Code:boot64       ; Long jump to the code segment of 64 Bits
 
-%include "64BitGDTTable.asm"
+%include "64BitGDTTable.asm"    ; Include the file which contains the 64 Bit GDT Table
 
 [BITS 64]
 boot64:
 	
-	cli                           ; Clear the interrupt flag.
-    mov ax, GDT64.Data            ; Set the A-register to the data descriptor.
-    mov ds, ax                    ; Set the data segment to the A-register.
-    mov es, ax                    ; Set the extra segment to the A-register.
-    mov fs, ax                    ; Set the F-segment to the A-register.
-    mov gs, ax                    ; Set the G-segment to the A-register.
-    mov ss, ax                    ; Set the stack segment to the A-register.
-    mov edi, 0xB8000              ; Set the destination index to 0xB8000.
-    mov rax, 0x000000  ; Set the A-register to 0x1F201F201F201F20.
-    mov ecx, 500                  ; Set the C-register to 500.
-    rep stosq                     ; Clear the screen.
+	cli                         ; Clear the interrupt flag
+    mov ax, GDT64.Data            
+    mov ds, ax                    
+    mov es, ax                   
+    mov fs, ax                    
+    mov gs, ax                    
+    mov ss, ax                    
+    mov edi, 0xB8000            ; Add destination of the Video Buffer (VGA Buffer) to edi
+    mov rax, 0x000000  			; Make the Screen black
+    mov ecx, 500                ; Set the C-register to 500.
+    rep stosq                   ; Clear the screen.
 
-    ; Display "Hello World!"
+    
+
+    ; Display "hello-world"
+    ; Move individual ASCII values of 'hello-world' into the VGA Buffer
     mov rdi, 0x00b8000              
  
     mov rax, 0x5f68   

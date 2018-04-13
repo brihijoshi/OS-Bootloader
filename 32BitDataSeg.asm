@@ -7,7 +7,7 @@
 
 
 
-mov ax, DATA_SEG
+mov ax, DATA_SEG		; Attach the segment register ds, es, fs, gs, ss to the Data Segment 
 mov ds, ax
 mov es, ax
 mov fs, ax
