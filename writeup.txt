@@ -74,6 +74,14 @@ April 13, 2018
 				11. Loop Back Again
 			e. Halt the Processor
 
+	- References
+		A. https://en.wikipedia.org/wiki/Control_register#EFER
+		B. http://3zanders.co.uk/2017/10/16/writing-a-bootloader2/
+		C. https://wiki.osdev.org/Setting_Up_Long_Mode
+		D. https://wiki.osdev.org/Entering_Long_Mode_Directly
+		E. https://blog.ghaiklor.com/how-to-implement-your-own-hello-world-boot-loader-c0210ef5e74b
+		F. https://wiki.osdev.org/Rolling_Your_Own_Bootloader
+
 
 
 
