@@ -6,6 +6,13 @@ April 13, 2018
 
 2. Printing 'hello-world' and the contents of CR3 in a bootloader 
 
+* How to run the Bootloader
+	
+	Type the following two commands - 
+
+	- nasm boot.asm -f bin -o boot.bin
+	- qemu-system-x86_64 boot.bin
+
 
 
 * Description of code and implementation details
@@ -14,7 +21,7 @@ April 13, 2018
 	- Overview of Bootloader
 
 		In order to print 'hello-world' and the contents of CR3, we need to perform the following in order -
-			1. Start the bootloader in the 20 bit Real mode. 
+			1. Start the bootloader in the 16 bit Real mode. 
 			2. Enable Protected Mode
 			3. Switch to the 32 bit mode
 			4. Enable GDT for 32 bit mode
@@ -58,7 +65,7 @@ April 13, 2018
 			b. Set RDX to 63, for the index of the MSB in CR3 (it is 64 bits in size)
 			c. Initialise RCX as 0
 			d. Inside a loop
-				1. Comparie if our counter RDX is 0
+				1. Compare if our counter RDX is 0
 				2. If RDX is 0, our printing has finished and we move to finish
 				3. Else move value of CR3 to RAX
 				4. Initialise our counter RBX to 0
