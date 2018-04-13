@@ -3,78 +3,24 @@ org 0x7c00
 
 boot:
 	cli
-	lgdt [gdt_pointer]
+	lgdt [.Pointer]
 	mov eax, cr0
 	or eax,0x1
 	mov cr0, eax
 	jmp CODE_SEG:boot2
-gdt_start:
-	dq 0x0
-gdt_code:
-	dw 0xFFFF
-	dw 0x0
-	db 0x0
-	db 10011010b
-	db 11001111b
-	db 0x0
-gdt_data:
-	dw 0xFFFF
-	dw 0x0
-	db 0x0
-	db 10010010b
-	db 11001111b
-	db 0x0
-gdt_end:
-gdt_pointer:
-	dw gdt_end - gdt_start
-	dd gdt_start
 
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+
+%include "32BitGDTTable.asm"
+
+CODE_SEG equ .Code - .Start
+DATA_SEG equ .Data - .Start
 
 bits 32
 boot2:
-	mov ax, DATA_SEG
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
-	mov esi,hello
-	mov ebx,0xb8000
-	jmp .loop
-.loop:
-	lodsb
-	or al,al
-	jz halt
-	or eax,0x0100
-	mov word [ebx], ax
-	add ebx,2
-	jmp .loop
-hello: db "Hello",0
-halt:
+	%include "32BitDataSeg.asm"
+	
 
-mov eax, cr0                                   ; Set the A-register to control register 0.
-and eax, 01111111111111111111111111111111b     ; Clear the PG-bit, which is bit 31.
-mov cr0, eax                                   ; Set control register 0 to the A-register.
-
-mov edi, 0x1000    ; Set the destination index to 0x1000.
-mov cr3, edi       ; Set control register 3 to the destination index.
-xor eax, eax       ; Nullify the A-register.
-mov ecx, 4096      ; Set the C-register to 4096.
-rep stosd          ; Clear the memory.
-mov edi, cr3       ; Set the destination index to control register 3.
-
-mov DWORD [edi], 0x2003      ; Set the uint32_t at the destination index to 0x2003.
-add edi, 0x1000              ; Add 0x1000 to the destination index.
-mov DWORD [edi], 0x3003      ; Set the uint32_t at the destination index to 0x3003.
-add edi, 0x1000              ; Add 0x1000 to the destination index.
-mov DWORD [edi], 0x4003      ; Set the uint32_t at the destination index to 0x4003.
-add edi, 0x1000              ; Add 0x1000 to the destination index.
-
-
-mov ebx, 0x00000003          ; Set the B-register to 0x00000003.
-mov ecx, 512                 ; Set the C-register to 512.
+%include "EnablePaging.asm"
 
 .SetEntry:
 	mov DWORD [edi], ebx         ; Set the uint32_t at the destination index to the B-register.
