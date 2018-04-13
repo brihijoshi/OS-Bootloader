@@ -9,12 +9,12 @@
 
 GDT64:                               ; Global Descriptor Table (64-bit)
     .Null: equ $ - GDT64         
-    dw 0xFFFF                    
-    dw 0                         
-    db 0                         
-    db 0                        
-    db 1                         
-    db 0                         
+        dw 0xFFFF                    
+        dw 0                         
+        db 0                         
+        db 0                        
+        db 1                         
+        db 0                         
     .Code: equ $ - GDT64         
         dw 0                         ; Limit - Describing where the segment ends
         dw 0                         ; Base level

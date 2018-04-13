@@ -14,7 +14,7 @@ boot:
 	mov eax, cr0				; Moves the CR0 register to EAX(32 Bit)
 	or eax,0x1					; Make the first bit of EAX as 1 (The first bit represents the Protected Mode Bit)
 	mov cr0, eax				; Write the changes of EAX back to CR0
-	jmp CODE_SEG:boot32         ; Long jump to the code segment of 32 Bits
+	jmp CODE_SEG:boot32         ; Jump to the code segment of 32 Bits
 
 
 %include "32BitGDTTable.asm"	; Include the file which contains the 32 Bit GDT Table
@@ -103,7 +103,7 @@ boot64:
 	xor rcx, rcx				; Initialising RCX as 0
 	printcr3:
 		cmp rdx, 0				; Comparing if our counter RDX is 0
-		je end                  ; If RDX is 0, our printing has finished and we move to the end
+		jl finish               ; If RDX is 0, our printing has finished and we move to finish
 		mov rax, cr3			; Move value of CR3 to RAX
 		mov rbx, 0				; Initialise our counter RBX to 0
 
@@ -128,7 +128,7 @@ boot64:
 			sub rdx, 1			; Subtract our Index counter by 1
 			jmp printcr3
 
-	end:
+	
 	finish:
 
 	    hlt                     ; Halt the processor.

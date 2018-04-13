@@ -1,0 +1,83 @@
+CSE231: Operating Systems
+Assignment 3
+Brihi Joshi (2016142)
+Taejas Gupta (2016204)
+April 13, 2018
+
+2. Printing 'hello-world' and the contents of CR3 in a bootloader 
+
+
+
+* Description of code and implementation details
+	
+	
+	- Overview of Bootloader
+
+		In order to print 'hello-world' and the contents of CR3, we need to perform the following in order -
+			1. Start the bootloader in the 20 bit Real mode. 
+			2. Enable Protected Mode
+			3. Switch to the 32 bit mode
+			4. Enable GDT for 32 bit mode
+			5. Switch to 64 bit mode 
+			6. Enable GDT for 32 bit mode
+			7. Enable Paging for 64 bit mode
+
+	
+	- Logical and Implementation Details
+
+		A. Entering Real Mode - 
+			a. Start with 16 Bits of the Real Mode
+			b. 'org' command tells the program where (location) to load the boot file to
+			c. Disable all the interrupts in order to prevent race conditions with interrupt handler
+			d. Load the pointer to the GDT Table. Here, this initial pointer belongs to the 32 Bit GDT Table
+			e. Make the first bit of CR0 as 1 (The first bit represents the Protected Mode Bit)
+			f. Jump to the code segment of 32 Bits
+			
+		B. Inside the Protected 32 Bit Mode
+			a. Enable the 32 Bit GDT Table
+			b. Set the Code and the Data segment addresses
+			c. Set the Segment registers in 32 bit
+			d. Prepare to enter the 64 bit mode by enabling paging
+
+		C. Inside the Protected 64 Bit Mode
+			a. Set the PAE-bit, which is the 6th bit (bit 5) in CR4
+			b. Set the LM-bit which is the 9th bit (bit 8) in EFER MSR
+			c. Set the PG-bit, which is the 32nd bit (bit 31) in CR0
+			d. Set the Data Segment registers in 64 bit
+			e. Add destination of the Video Buffer (VGA Buffer) to EDI
+			f. Make the Screen Color black
+			g. Clear the screen
+
+		D. Printing 'hello-world' 
+			a. Move VGA Buffer address to RDI
+			b. Print ASCII values of 'hello-world' by moving the ascii values in RDI
+			c. Increase the RDI offset by 2 after printing each character
+
+		E. Printing contents of CR3 Register
+			a. Set the VGA Buffer
+			b. Set RDX to 63, for the index of the MSB in CR3 (it is 64 bits in size)
+			c. Initialise RCX as 0
+			d. Inside a loop
+				1. Comparie if our counter RDX is 0
+				2. If RDX is 0, our printing has finished and we move to finish
+				3. Else move value of CR3 to RAX
+				4. Initialise our counter RBX to 0
+				5. Inside another loop
+					A. If RBX equals RDX jump to the next stage
+					B. Increment our counter RBX
+					C. Right shift RAX by 1 position
+				6. AND one particular index of RAX with 1
+				7. Increment RCX with 2
+				8. If our print bit is 0, print it on the VGA as 0
+				9. Else, print it on VGA as 1
+				10. Subtract our Index counter RDX by 1
+				11. Loop Back Again
+			e. Halt the Processor
+
+
+
+
+
+		
+
+		
