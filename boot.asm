@@ -28,49 +28,12 @@ boot2:
 	add edi, 8                   ; Add eight to the destination index.
 	loop .SetEntry               ; Set the next entry.
 
-	mov eax, cr4                 ; Set the A-register to control register 4.
-	or eax, 1 << 5               ; Set the PAE-bit, which is the 6th bit (bit 5).
-	mov cr4, eax                 ; Set control register 4 to the A-register.
-
-	mov ecx, 0xC0000080          ; Set the C-register to 0xC0000080, which is the EFER MSR.
-	rdmsr                        ; Read from the model-specific register.
-	or eax, 1 << 8               ; Set the LM-bit which is the 9th bit (bit 8).
-	wrmsr                        ; Write to the model-specific register.
-
-	mov eax, cr0                 ; Set the A-register to control register 0.
-	or eax, 1 << 31              ; Set the PG-bit, which is the 32nd bit (bit 31).
-	mov cr0, eax                 ; Set control register 0 to the A-register.
+	%include "SwitchToProtected.asm"
 
 	lgdt [GDT64.Pointer]         ; Load the 64-bit global descriptor table.
 	jmp GDT64.Code:Realm64       ; Set the code segment and enter 64-bit long mode.
 
-GDT64:                           ; Global Descriptor Table (64-bit).
-    .Null: equ $ - GDT64         ; The null descriptor.
-    dw 0xFFFF                    ; Limit (low).
-    dw 0                         ; Base (low).
-    db 0                         ; Base (middle)
-    db 0                         ; Access.
-    db 1                         ; Granularity.
-    db 0                         ; Base (high).
-    .Code: equ $ - GDT64         ; The code descriptor.
-    dw 0                         ; Limit (low).
-    dw 0                         ; Base (low).
-    db 0                         ; Base (middle)
-    db 10011010b                 ; Access (exec/read).
-    db 10101111b                 ; Granularity, 64 bits flag, limit19:16.
-    db 0                         ; Base (high).
-    .Data: equ $ - GDT64         ; The data descriptor.
-    dw 0                         ; Limit (low).
-    dw 0                         ; Base (low).
-    db 0                         ; Base (middle)
-    db 10010010b                 ; Access (read/write).
-    db 00000000b                 ; Granularity.
-    db 0                         ; Base (high).
-    .Pointer:                    ; The GDT-pointer.
-    dw $ - GDT64 - 1             ; Limit.
-    dq GDT64                     ; Base.
-
-
+%include "64BitGDTTable.asm"
 
 [BITS 64]
 Realm64:
@@ -155,11 +118,9 @@ Realm64:
 			jmp printcr3
 
 	end:
-
-
 	finish:
 
-    hlt                           ; Halt the processor.
+	    hlt                           ; Halt the processor.
 
 
 
