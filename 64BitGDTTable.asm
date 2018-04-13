@@ -7,29 +7,29 @@
 
 
 
-GDT64:                           ; Global Descriptor Table (64-bit).
-    .Null: equ $ - GDT64         ; The null descriptor.
-    dw 0xFFFF                    ; Limit (low).
-    dw 0                         ; Base (low).
-    db 0                         ; Base (middle)
-    db 0                         ; Access.
-    db 1                         ; Granularity.
-    db 0                         ; Base (high).
-    .Code: equ $ - GDT64         ; The code descriptor.
-    dw 0                         ; Limit (low).
-    dw 0                         ; Base (low).
-    db 0                         ; Base (middle)
-    db 10011010b                 ; Access (exec/read).
-    db 10101111b                 ; Granularity, 64 bits flag, limit19:16.
-    db 0                         ; Base (high).
-    .Data: equ $ - GDT64         ; The data descriptor.
-    dw 0                         ; Limit (low).
-    dw 0                         ; Base (low).
-    db 0                         ; Base (middle)
-    db 10010010b                 ; Access (read/write).
-    db 00000000b                 ; Granularity.
-    db 0                         ; Base (high).
-    .Pointer:                    ; The GDT-pointer.
-    dw $ - GDT64 - 1             ; Limit.
-    dq GDT64                     ; Base.
+GDT64:                               ; Global Descriptor Table (64-bit)
+    .Null: equ $ - GDT64         
+    dw 0xFFFF                    
+    dw 0                         
+    db 0                         
+    db 0                        
+    db 1                         
+    db 0                         
+    .Code: equ $ - GDT64         
+        dw 0                         ; Limit - Describing where the segment ends
+        dw 0                         ; Base level
+        db 0                         ; Ring level
+        db 10011010b                 ; Accessed - Whether this segment has already been accessed
+        db 10101111b                 ; Granularity - Defining limit of the blocks (The size till which the blocks can extend)
+        db 0                         ; Base - describes where the segment begins
+    .Data: equ $ - GDT64           
+        dw 0                        
+        dw 0                         
+        db 0                        
+        db 10010010b                 
+        db 00000000b                 
+        db 0                        
+    .Pointer:                        ; Pointer to the GDT Table itself
+        dw $ - GDT64 - 1             ; Size of the GDT
+        dq GDT64                     ; 64 bit pointer to the start of the GDT
 

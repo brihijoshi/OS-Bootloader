@@ -30,10 +30,10 @@ boot32:
 %include "EnablePaging.asm"		; Prepare to enter the 64 bit mode by enabling paging
 
 .SetEntry:
-	mov DWORD [edi], ebx        ; Set the uint32_t at the destination index to the B-register.
-	add ebx, 0x1000             ; Add 0x1000 to the B-register.
-	add edi, 8                  ; Add eight to the destination index.
-	loop .SetEntry              ; Set the next entry.
+	mov DWORD [edi], ebx        ; Set the uint32_t at the destination index to the EBX
+	add ebx, 0x1000             ; Add 0x1000 to the EBX
+	add edi, 8                  ; Add eight to the destination index
+	loop .SetEntry              ; Set the next entry
 
 	%include "SwitchToProtected.asm"
 
@@ -52,7 +52,7 @@ boot64:
     mov fs, ax                    
     mov gs, ax                    
     mov ss, ax                    
-    mov edi, 0xB8000            ; Add destination of the Video Buffer (VGA Buffer) to edi
+    mov edi, 0xB8000            ; Add destination of the Video Buffer (VGA Buffer) to EDI
     mov rax, 0x000000  			; Make the Screen black
     mov ecx, 500                ; Set the C-register to 500.
     rep stosq                   ; Clear the screen.
