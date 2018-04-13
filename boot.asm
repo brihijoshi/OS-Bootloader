@@ -96,41 +96,42 @@ boot64:
     mov rax, 0x5f64
     mov [rdi + 20], rax
 
-    ; Printing CR3 value, right shift by x values and AND with 1 to get the bit value and then print it.
-	mov rdi, 0xb8000 + 22
-	mov rdx, 0x3f
-	xor rcx, rcx
+    ; Printing CR3 value
+
+	mov rdi, 0xb8000 + 22		; Setting the VGA Buffer
+	mov rdx, 0x3f				; Setting RDX to 63, for the index of the MSB in CR3 (it is 64 bits in size)
+	xor rcx, rcx				; Initialising RCX as 0
 	printcr3:
-		cmp rdx, 0
-		je end
-		mov rax, cr3
-		mov rbx, 0
+		cmp rdx, 0				; Comparing if our counter RDX is 0
+		je end                  ; If RDX is 0, our printing has finished and we move to the end
+		mov rax, cr3			; Move value of CR3 to RAX
+		mov rbx, 0				; Initialise our counter RBX to 0
 
 		shift_rax:
-			cmp rbx, rdx
-			je next
-			add rbx, 1
-			shr rax, 1
+			cmp rbx, rdx		; If RBX equals RDX
+			je next             ; Jump to the next stage
+			add rbx, 1			; Increment our counter
+			shr rax, 1			; Right shift by 1 position
 			jmp shift_rax
 		next:
-			and rax, 1
-			add rcx, 2
-			cmp rax, 0
+			and rax, 1			; AND one particular index of RAX with 1
+			add rcx, 2			; Increment RCX with 2
+			cmp rax, 0			; If our print bit is 0
 			je rax_zero
-				mov rax, 0x5f31
+				mov rax, 0x5f31	; Print it on the VGA as 0
 				mov [rdi+rcx], rax
 				jmp end_if
 			rax_zero:
-				mov rax, 0x5f30
+				mov rax, 0x5f30	; Else print it on VGA as 1
 				mov [rdi+rcx], rax
 			end_if:
-			sub rdx, 1
+			sub rdx, 1			; Subtract our Index counter by 1
 			jmp printcr3
 
 	end:
 	finish:
 
-	    hlt                           ; Halt the processor.
+	    hlt                     ; Halt the processor.
 
 
 
