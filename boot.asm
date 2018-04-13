@@ -5,25 +5,25 @@
 ;																			;																		;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-bits 16
-org 0x7c00
+bits 16							; Start with 16 Bits of the Real Mode
+org 0x7c00						; org tells the program where (location) to load the boot file to
 
 boot:
-	cli
-	lgdt [.Pointer]
-	mov eax, cr0
-	or eax,0x1
-	mov cr0, eax
-	jmp CODE_SEG:boot2
+	cli                         ; cli disables all the interrupts in order to prevent race conditions with interrupt handler
+	lgdt [.Pointer]				; Load pointer to the GDT Table. Here, initial pointer is to the 32 Bit GDT Table
+	mov eax, cr0				; Moves the CR0 register to EAX(32 Bit)
+	or eax,0x1					; Make the first bit of EAX as 1 (The first bit represents the Protected Mode Bit)
+	mov cr0, eax				; Write the changes of EAX back to CR0
+	jmp CODE_SEG:boot32         ; Long jump to the code segment
 
 
-%include "32BitGDTTable.asm"
+%include "32BitGDTTable.asm"	; Include the file which contains the 32 Bit GDT Table
 
-CODE_SEG equ .Code - .Start
-DATA_SEG equ .Data - .Start
+CODE_SEG equ .Code - .Start		; Address of the code segment is address of code wrt address of start
+DATA_SEG equ .Data - .Start     ; Address of the data segment is address of data wrt address of start
 
-bits 32
-boot2:
+bits 32							; Now we have entered the 32 bit protected mode
+boot32:
 	%include "32BitDataSeg.asm"
 	
 
@@ -38,12 +38,12 @@ boot2:
 	%include "SwitchToProtected.asm"
 
 	lgdt [GDT64.Pointer]         ; Load the 64-bit global descriptor table.
-	jmp GDT64.Code:Realm64       ; Set the code segment and enter 64-bit long mode.
+	jmp GDT64.Code:boot64        ; Set the code segment and enter 64-bit long mode.
 
 %include "64BitGDTTable.asm"
 
 [BITS 64]
-Realm64:
+boot64:
 	
 	cli                           ; Clear the interrupt flag.
     mov ax, GDT64.Data            ; Set the A-register to the data descriptor.
